@@ -1,3 +1,5 @@
 /**/*~
 /bin
 /out
+/compile_commands.json
+/.cache

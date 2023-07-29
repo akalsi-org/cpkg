@@ -96,4 +96,4 @@ targets() {
 }
 
 rm -fr ./out/
-targets
+[ "$NORUN" != 1 ] && targets
