@@ -1,0 +1,9 @@
+file foo/foo.c
+file foo/foo.t.c
+file foo/foo.h
+
+import github.com/tidwall/buf.c v0.2.1 -> 3p
+import github.com/tidwall/hashmap.c v0.7.0 -> 3p
+import github.com/tidwall/evio.c v0.5.1 -> 3p
+import https://raw.githubusercontent.com/sheredom/utest.h/master/utest.h -> 3p
+
