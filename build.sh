@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 folders=$(find . -maxdepth 1 -type d)
 
@@ -6,7 +6,7 @@ top_level_folders() {
   find . -maxdepth 1 -type d | grep -v '\.$' | grep -v '\..$' | sed 's|^\./||'
 }
 
-warnflags="-Wall -Werror -pedantic -Wno-unused-parameter -Wno-unused-variable -Wno-unused-but-set-variable -Wno-sign-compare -Wno-unused-function -Wno-missing-braces -Wno-unused-but-found -Wno-unused-result"
+warnflags="-Wall -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-but-set-variable -Wno-sign-compare -Wno-unused-function -Wno-missing-braces -Wno-unused-but-found -Wno-unused-result"
 
 optflags="-O0 -g -fprofile-arcs --coverage -fsanitize=address -fsanitize=leak"
 cflags="${CFLAGS} -std=gnu11 ${warnflags} -I$(pwd) -fvisibility=default -fPIC"
@@ -99,6 +99,8 @@ targets() {
   done
 }
 
+export BUILD_INCLUDED=1
+
 rm -fr ./out/
 [ "$NORUN" != 1 ] && targets
-./comp-db.sh
+source ./comp-db.sh

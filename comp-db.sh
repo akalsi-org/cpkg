@@ -1,6 +1,8 @@
 #!/bin/bash
 
-NORUN=1 source ./build.sh
+if [ "$BUILD_INCLUDED" = '' ]; then
+  NORUN=1 source ./build.sh
+fi
 
 exec 1<>"compile_commands.json"
 
