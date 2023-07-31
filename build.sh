@@ -101,3 +101,4 @@ targets() {
 
 rm -fr ./out/
 [ "$NORUN" != 1 ] && targets
+./comp-db.sh
