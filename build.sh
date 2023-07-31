@@ -6,24 +6,28 @@ top_level_folders() {
   find . -maxdepth 1 -type d | grep -v '\.$' | grep -v '\..$' | sed 's|^\./||'
 }
 
+warnflags="-Wall -Werror -pedantic -Wno-unused-parameter -Wno-unused-variable -Wno-unused-but-set-variable -Wno-sign-compare -Wno-unused-function -Wno-missing-braces -Wno-unused-but-found -Wno-unused-result"
+
 optflags="-O0 -g -fprofile-arcs --coverage -fsanitize=address -fsanitize=leak"
-cflags="${CFLAGS} -I$(pwd) -fvisibility=default -fPIC"
-cxxflags="${CXXFLAGS} -I$(pwd) -fvisibility=default -fPIC"
+cflags="${CFLAGS} -std=gnu11 ${warnflags} -I$(pwd) -fvisibility=default -fPIC"
+cxxflags="${CXXFLAGS} -std=gnu++17 ${warnflags} -I$(pwd) -fvisibility=default -fPIC"
 ldflags="${LDFLAGS} -lasan -llsan -lgcov"
 
-if [ "$DEBUG" != 1 ]; then
+if [ "$NDEBUG" = 1 ]; then
   optflags="-O3 -fno-omit-frame-pointer -DNDEBUG"
   ldflags="${LDFLAGS}"
-else
-  set -x
 fi
 
 [ "$TMPDIR" = '' ] && TMPDIR="/tmp"
 
+cc="cc"
+
+command -v ccache >/dev/null && cc="ccache $cc"
+
 compile_dir() {
   dir="$1"
   mkdir -p "out/$dir"
-  comp_cmd="cc ${cflags} ${optflags}"
+  comp_cmd="${cc} ${cflags} ${optflags}"
   find "$dir" -name '*.c' | xargs -I{} -P6 sh -c "mkdir -p \$(dirname {}) && echo cc {} && $comp_cmd -c {} -o out/{}.o" || exit 1
   [ -f "out/test-main.t.c.o" ] && return
   cat >"${TMPDIR}/utest-main.c" <<EOF
@@ -42,7 +46,7 @@ link_dir() {
   mkdir -p out/bin
   if [ "$kind" = bin ]; then
     echo ld "$dir"
-    cc $(find "out/$dir" -name '*.o' ! -name '*.t.c.o' | xargs) -L out/lib ${deps} ${ldflags} -o "out/bin/${dir}" || exit 1
+    ${cc} $(find "out/$dir" -name '*.o' ! -name '*.t.c.o' | xargs) -L out/lib ${deps} ${ldflags} -o "out/bin/${dir}" || exit 1
   else
     mkdir -p out/lib
     echo ar "$dir"
@@ -61,9 +65,9 @@ test_dir() {
   else
     mkdir -p out/lib
     echo ld "${dir}_tests"
-    cc $(find "out/$dir" -name '*.t.c.o' | xargs) out/test-main.t.c.o -L out/lib -l${dir} ${deps} ${ldflags} -o "out/bin/${dir}_tests" || exit 1
+    ${cc} $(find "out/$dir" -name '*.t.c.o' | xargs) out/test-main.t.c.o -L out/lib -l${dir} ${deps} ${ldflags} -o "out/bin/${dir}_tests" || exit 1
     echo run "${dir}_tests"
-    "out/bin/${dir}_tests"
+    "out/bin/${dir}_tests" || exit 1
   fi
 }
 

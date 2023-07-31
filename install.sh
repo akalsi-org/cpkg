@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export NDEBUG=1
 source ./build.sh
 
 set -euo pipefail
